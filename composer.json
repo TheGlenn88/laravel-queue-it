@@ -2,6 +2,7 @@
     "name": "theglenn88/laravel-queue-it",
     "description": "Queue-It wrapper for Laravel.",
     "type": "library",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "TheGlenn88\\LaravelQueueIt\\": "src/"
