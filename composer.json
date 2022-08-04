@@ -1,0 +1,27 @@
+{
+    "name": "theglenn88/laravel-queue-it",
+    "description": "Queue-It wrapper for Laravel.",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "TheGlenn88\\LaravelQueueIt\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mike Glenn",
+            "email": "mike.glenn@me.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TheGlenn88\\LaravelQueueIt\\QueueItServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "illuminate/support": "^8",
+        "queueit/knownuserv3": "^3.7"
+    }
+}
