@@ -16,6 +16,12 @@ class QueueItMiddleware
         $customerID = config('queueit.customer_id');
         $secretKey = config('queueit.secret');
 
+        // Check required environment variables set or continue with response.
+        if (is_null($customerID) || is_null($secretKey)) {
+            $response = $next($request);
+            return $response;
+        }
+
         // If configuration doesn't exist, go and fetch it from Queue-It and cache it.
         if (is_null($configText)) {
             $apiKey = config('queueit.api_key');
@@ -33,10 +39,7 @@ class QueueItMiddleware
             Cache::put('queueit:integrationconfig', $configText);
         }
 
-        if (is_null($customerID) || is_null($secretKey)) {
-            $response = $next($request);
-            return $response;
-        }
+
 
         $queueittoken = $request->input('queueittoken');
 
