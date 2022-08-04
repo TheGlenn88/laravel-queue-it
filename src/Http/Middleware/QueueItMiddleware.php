@@ -12,15 +12,16 @@ class QueueItMiddleware
 {
     public function handle($request, Closure $next)
     {
-        $configText = Cache::get('queueit:integrationconfig');
         $customerID = config('queueit.customer_id');
         $secretKey = config('queueit.secret');
 
         // Check required environment variables set or continue with response.
-        if (is_null($customerID) || is_null($secretKey)) {
+        if (is_null($customerID) || is_null($secretKey) || $request->route()->uri === 'health-check') {
             $response = $next($request);
             return $response;
         }
+
+        $configText = Cache::get('queueit:integrationconfig');
 
         // If configuration doesn't exist, go and fetch it from Queue-It and cache it.
         if (is_null($configText)) {
