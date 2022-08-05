@@ -6,7 +6,6 @@ use Closure;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Redis;
 use QueueIT\KnownUserV3\SDK\KnownUser;
 
 class QueueItMiddleware
@@ -17,9 +16,17 @@ class QueueItMiddleware
         $secretKey = config('queueit.secret');
 
         // Check required environment variables set or continue with response.
-        if (is_null($customerID) || is_null($secretKey) || $request->route()->uri === 'health-check') {
+        if (is_null($customerID) || is_null($secretKey)) {
             $response = $next($request);
             return $response;
+        }
+
+        // Check for excluded paths and skip.
+        foreach (config('queueit.excluded_paths') as $path) {
+            if (str_starts_with($request->route()->uri, $path)) {
+                $response = $next($request);
+                return $response;
+            }
         }
 
         $configText = Cache::get('queueit:integrationconfig');
