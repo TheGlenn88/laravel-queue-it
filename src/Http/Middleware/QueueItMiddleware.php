@@ -40,8 +40,6 @@ class QueueItMiddleware
             Cache::put('queueit:integrationconfig', $configText);
         }
 
-
-
         $queueittoken = $request->input('queueittoken');
 
         $fullUrl = \URL::full();
@@ -57,23 +55,24 @@ class QueueItMiddleware
         );
 
         if ($result->doRedirect()) {
-
             // Adding no cache headers to prevent browsers to cache requests
-            header("Expires:Fri, 01 Jan 1990 00:00:00 GMT");
-            header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-            header("Pragma: no-cache");
+            $noCacheHeaders = [
+                'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+                'Pragma' => 'no-cache',
+            ];
             //end
 
             if (!$result->isAjaxResult) {
-                //Send the user to the queue - either because hash was missing or because is was invalid
-                header('Location: ' . $result->redirectUrl);
+                //Send the user to the queue - either because hash was missing or because it was invalid
+                return redirect($result->redirectUrl, 302, $noCacheHeaders);
             } else {
-                header('HTTP/1.0: 200');
-                header("Access-Control-Expose-Headers" . ': ' . $result->getAjaxQueueRedirectHeaderKey());
-                header($result->getAjaxQueueRedirectHeaderKey() . ': ' . $result->getAjaxRedirectUrl());
+                $ajaxResultHeaders = [
+                    'Access-Control-Expose-Headers' => $result->getAjaxQueueRedirectHeaderKey(),
+                    $result->getAjaxQueueRedirectHeaderKey() => $result->getAjaxRedirectUrl(),
+                ];
+                return response('', 200, array_merge($noCacheHeaders, $ajaxResultHeaders));
             }
-
-            return redirect($result->redirectUrl);
         }
         if (!empty($queueittoken) && $result->actionType == "Queue") {
             return redirect($currentUrlWithoutQueueitToken);
@@ -81,5 +80,6 @@ class QueueItMiddleware
 
         $response = $next($request);
         return $response;
+
     }
 }
