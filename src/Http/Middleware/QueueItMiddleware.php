@@ -16,10 +16,8 @@ class QueueItMiddleware
         $customerID = config('queueit.customer_id');
         $secretKey = config('queueit.secret');
 
-        $enabled = (bool) Redis::connection('feature-flags')->get('test');
-
         // Check required environment variables set or continue with response.
-        if (!$enabled || is_null($customerID) || is_null($secretKey) || $request->route()->uri === 'health-check') {
+        if (is_null($customerID) || is_null($secretKey) || $request->route()->uri === 'health-check') {
             $response = $next($request);
             return $response;
         }
