@@ -6,6 +6,7 @@ use Closure;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Redis;
 use QueueIT\KnownUserV3\SDK\KnownUser;
 
 class QueueItMiddleware
@@ -15,8 +16,10 @@ class QueueItMiddleware
         $customerID = config('queueit.customer_id');
         $secretKey = config('queueit.secret');
 
+        $enabled = (bool) Redis::connection('feature-flags')->get('test');
+
         // Check required environment variables set or continue with response.
-        if (is_null($customerID) || is_null($secretKey) || $request->route()->uri === 'health-check') {
+        if (!$enabled || is_null($customerID) || is_null($secretKey) || $request->route()->uri === 'health-check') {
             $response = $next($request);
             return $response;
         }
