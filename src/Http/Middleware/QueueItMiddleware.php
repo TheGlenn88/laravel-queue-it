@@ -15,6 +15,11 @@ class QueueItMiddleware
         $customerID = config('queueit.customer_id');
         $secretKey = config('queueit.secret');
 
+        if (in_array($request->ip(), config('queueit.excluded_ips'))) {
+            $response = $next($request);
+            return $response;
+        }
+
         // Check required environment variables set or continue with response.
         if (is_null($customerID) || is_null($secretKey)) {
             $response = $next($request);

@@ -7,4 +7,5 @@ return [
     'excluded_paths' => [
         'health-check',
     ],
+    'excluded_ips' => env('QUEUE_IT_EXCLUDED_IPS', null) ? explode(',', env('QUEUE_IT_EXCLUDED_IPS')) : [],
 ];
